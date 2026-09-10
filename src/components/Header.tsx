@@ -102,6 +102,31 @@ const Header: React.FC<HeaderProps> = ({ activeTab, mobileViewMode, setMobileVie
               </button>
               <div className="mobile-dropdown-divider"></div>
               */}
+
+              {activeTab !== 'upload' && activeTab !== 'toki' && selectedCity && (
+                <>
+                  <label className="mobile-dropdown-item" style={{ cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={filterHazineTam} 
+                      onChange={(e) => setFilterHazineTam(e.target.checked)} 
+                      style={{ width: '16px', height: '16px', accentColor: 'var(--primary-color)' }}
+                    />
+                    Hazine Tam
+                  </label>
+                  <label className="mobile-dropdown-item" style={{ cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={filterHazineHisseli} 
+                      onChange={(e) => setFilterHazineHisseli(e.target.checked)} 
+                      style={{ width: '16px', height: '16px', accentColor: 'var(--primary-color)' }}
+                    />
+                    Hazine Hisseli
+                  </label>
+                  <div className="mobile-dropdown-divider"></div>
+                </>
+              )}
+
               <button
                 className="mobile-dropdown-item text-green"
                 onClick={() => { window.dispatchEvent(new Event('export-excel')); setIsMobileMenuOpen(false); }}
@@ -149,7 +174,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, mobileViewMode, setMobileVie
         )}
 
         {activeTab !== 'upload' && activeTab !== 'toki' && selectedCity && (
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
+          <div className="desktop-only" style={{ gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
               <input 
                 type="checkbox" 
