@@ -104,6 +104,9 @@ function App() {
                     newRow[finalKey] = row[key];
                   }
                   newRow.id = `parsel-${idCounter++}`;
+                  if (newRow.geom && !newRow.tapualan) {
+                    newRow.tapualan = getWktArea(newRow.geom) || '';
+                  }
                   return newRow as ParcelRecord;
                 });
                 allRecords = withIds;
