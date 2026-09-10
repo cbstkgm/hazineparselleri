@@ -18,13 +18,17 @@ interface HeaderProps {
   tokiCity?: string;
   setTokiCity?: (city: string) => void;
   tokiAvailableCities?: Set<string>;
+  filterHazineTam: boolean;
+  setFilterHazineTam: (val: boolean) => void;
+  filterHazineHisseli: boolean;
+  setFilterHazineHisseli: (val: boolean) => void;
 }
 
 export const TURKEY_CITIES = [
   "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
 ].sort((a, b) => a.localeCompare(b, 'tr'));
 
-const Header: React.FC<HeaderProps> = ({ activeTab, mobileViewMode, setMobileViewMode, selectedCity, setSelectedCity, availableCities, tokiCity, setTokiCity, tokiAvailableCities }) => {
+const Header: React.FC<HeaderProps> = ({ activeTab, mobileViewMode, setMobileViewMode, selectedCity, setSelectedCity, availableCities, tokiCity, setTokiCity, tokiAvailableCities, filterHazineTam, setFilterHazineTam, filterHazineHisseli, setFilterHazineHisseli }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -141,6 +145,29 @@ const Header: React.FC<HeaderProps> = ({ activeTab, mobileViewMode, setMobileVie
                 </select>
               </div>
             )}
+          </div>
+        )}
+
+        {activeTab !== 'upload' && activeTab !== 'toki' && selectedCity && (
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', background: 'rgba(255,255,255,0.9)', padding: '4px 12px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={filterHazineTam} 
+                onChange={(e) => setFilterHazineTam(e.target.checked)} 
+                style={{ cursor: 'pointer' }}
+              />
+              Hazine Tam
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#334155', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={filterHazineHisseli} 
+                onChange={(e) => setFilterHazineHisseli(e.target.checked)} 
+                style={{ cursor: 'pointer' }}
+              />
+              Hazine Hisseli
+            </label>
           </div>
         )}
 

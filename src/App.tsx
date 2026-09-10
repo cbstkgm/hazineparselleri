@@ -45,6 +45,9 @@ function App() {
   const [mobileViewMode, setMobileViewMode] = useState<'card' | 'table'>('card');
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
   
+  const [filterHazineTam, setFilterHazineTam] = useState(false);
+  const [filterHazineHisseli, setFilterHazineHisseli] = useState(false);
+
   const [checkedRowIds, setCheckedRowIds] = useState<Set<string>>(new Set());
   const [mapFeatures, setMapFeatures] = useState<MapFeature[]>([]);
   const [isMapPanelOpen, setIsMapPanelOpen] = useState(false);
@@ -151,6 +154,21 @@ function App() {
       return rowCity === selectedCity.toLocaleLowerCase('tr-TR').trim();
     });
 
+    if (filterHazineTam || filterHazineHisseli) {
+      result = result.filter(row => {
+        const durum = (row.hazineparseldurumaciklama || row.hazineparseldurum || '').toString().toLocaleLowerCase('tr-TR');
+        const isTam = durum.includes('tam');
+        const isHisseli = durum.includes('hisse');
+        
+        if (filterHazineTam && filterHazineHisseli) {
+          return isTam || isHisseli;
+        }
+        if (filterHazineTam) return isTam;
+        if (filterHazineHisseli) return isHisseli;
+        return true;
+      });
+    }
+
     if (debouncedSearch) {
       const normalizedQuery = normalizeSearch(debouncedSearch);
       result = result.filter(row => {
@@ -165,7 +183,7 @@ function App() {
     }
     
     return result;
-  }, [parcelData, selectedCity, debouncedSearch]);
+  }, [parcelData, selectedCity, debouncedSearch, filterHazineTam, filterHazineHisseli]);
 
   const handleRowCheck = (row: any, checked: boolean) => {
     const rowKey = String(row.id);
@@ -253,6 +271,10 @@ function App() {
           setSearchQuery('');
         }}
         availableCities={availableCities}
+        filterHazineTam={filterHazineTam}
+        setFilterHazineTam={setFilterHazineTam}
+        filterHazineHisseli={filterHazineHisseli}
+        setFilterHazineHisseli={setFilterHazineHisseli}
       />
 
       <main className="main-content" style={{ backgroundImage: !selectedCity ? "url('/background.jpg')" : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
