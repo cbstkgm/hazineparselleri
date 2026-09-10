@@ -8,7 +8,7 @@ interface AnimatedLogoProps {
 const AnimatedLogo: React.FC<AnimatedLogoProps> = ({ direction = 'right' }) => {
   return (
     <div className={`animated-logo animated-logo-${direction}`}>
-      <img src="/logo_flat.png" alt="HP Logo" style={{ width: '36px', height: 'auto', objectFit: 'contain' }} />
+      <img src={`${import.meta.env.BASE_URL}logo_flat.png`} alt="HP Logo" style={{ width: '36px', height: 'auto', objectFit: 'contain' }} />
     </div>
   );
 };

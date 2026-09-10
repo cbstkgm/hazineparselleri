@@ -294,7 +294,7 @@ function App() {
         setFilterHazineHisseli={setFilterHazineHisseli}
       />
 
-      <main className="main-content" style={{ backgroundImage: !selectedCity ? "url('/background.jpg')" : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <main className="main-content" style={{ backgroundImage: !selectedCity ? `url('${import.meta.env.BASE_URL}background.jpg')` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="content-area" style={{ background: !selectedCity ? 'rgba(0,0,0,0.5)' : 'transparent' }}>
           {!selectedCity ? (
             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', textAlign: 'center', padding: '20px' }}>
