@@ -83,7 +83,7 @@ function App() {
             const Papa = PapaModule.default || PapaModule;
             Papa.parse(fileUrl, {
               download: true,
-              worker: true,
+              worker: false,
               header: true,
               delimiter: delimiter,
               skipEmptyLines: 'greedy',
