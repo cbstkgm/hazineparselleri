@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Lock, ArrowRight } from 'lucide-react';
-import AnimatedLogo from './AnimatedLogo';
 import './Login.css';
 
 interface LoginProps {
@@ -28,7 +27,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       <div className="login-overlay"></div>
       <div className="login-card">
         <div className="login-logo">
-          <AnimatedLogo direction="right" />
+          <img src="/logo_3d.jpg" alt="HP Logo" style={{ width: '100px', height: '100px', objectFit: 'contain', borderRadius: '50%', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
         </div>
         <h1 className="login-title">Hazine Parselleri</h1>
         <p className="login-subtitle">Sisteme giriş yapmak için parolanızı giriniz.</p>
