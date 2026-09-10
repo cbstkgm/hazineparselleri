@@ -88,20 +88,25 @@ function App() {
                   header: true,
                   delimiter: delimiter,
                   skipEmptyLines: 'greedy',
-                  transformHeader: (header) => {
-                    const h = header.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
-                    const cleanH = h.replace(/[\s_]/g, '');
-                    if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') return 'ilad';
-                    if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') return 'ilcead';
-                    if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') return 'mahallead';
-                    if (cleanH === 'adano' || cleanH === 'ada') return 'adano';
-                    if (cleanH === 'parselno' || cleanH === 'parsel') return 'parselno';
-                    if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') return 'geom';
-                    return header.trim();
-                  },
                   complete: (results) => {
-                    const parsed = results.data as ParcelRecord[];
-                    const withIds = parsed.map(row => ({ ...row, id: `parsel-${idCounter++}` }));
+                    const parsed = results.data as any[];
+                    const withIds = parsed.map(row => {
+                      const newRow: any = {};
+                      for (const key in row) {
+                        const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
+                        const cleanH = h.replace(/[\s_]/g, '');
+                        let finalKey = key.trim();
+                        if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
+                        else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
+                        else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
+                        else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
+                        else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
+                        else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
+                        newRow[finalKey] = row[key];
+                      }
+                      newRow.id = `parsel-${idCounter++}`;
+                      return newRow as ParcelRecord;
+                    });
                     allRecords = [...allRecords, ...withIds];
                     resolve();
                   },
