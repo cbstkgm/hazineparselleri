@@ -104,20 +104,26 @@
 }
 
 .panel-header {
-  padding: 16px 20px;
-  border-bottom: none;
+  height: 64px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background: var(--primary-color);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  justify-content: space-between;
+  padding: 0 24px;
+  margin: 12px 24px;
+  border-radius: 16px;
+  z-index: 1100;
+  background: rgba(221, 226, 250, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .panel-header h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
   margin: 0;
 }
 

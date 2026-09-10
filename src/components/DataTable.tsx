@@ -57,14 +57,58 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
 
   const dynamicColumns = useMemo(() => {
     if (data.length === 0) return [];
-    // geom, id gibi gösterilmeyecek kolonları filtreliyoruz
-    const excludeKeys = ['id', 'geom', 'tha_geom', 'mukerrer_parsel_geom'];
-    const keys = Object.keys(data[0]).filter(k => !excludeKeys.includes(k));
-    return keys.map(k => ({ key: k, label: k.toUpperCase() }));
+    
+    // Yalnızca gösterilmesi istenen kolonlar ve tam sıralaması:
+    const visibleKeys = [
+      'ilad',
+      'ilcead',
+      'mahallead',
+      'tapuzeminref',
+      'adano',
+      'parselno',
+      'tapualan',
+      'tapucinsaciklama',
+      'hazineparseldurum',
+      'hazineparseldurumaciklama'
+    ];
+    
+    const normalizeKey = (key: string) => {
+      return key.trim()
+        .replace(/İ/g, 'i').replace(/I/g, 'ı')
+        .toLowerCase()
+        .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u')
+        .replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c')
+        .replace(/[\s_]/g, '');
+    };
+
+    const existingKeys = Object.keys(data[0]);
+    const keys: string[] = [];
+
+    visibleKeys.forEach(vk => {
+      const match = existingKeys.find(ek => {
+        if (ek === vk) return true;
+        return normalizeKey(ek) === vk;
+      });
+      if (match && !keys.includes(match)) {
+        keys.push(match);
+      }
+    });
+
+    return keys.map(k => {
+      const norm = normalizeKey(k);
+      if (norm === 'hazineparseldurum' || norm === 'hazineparseldurumaciklama') {
+        return { key: k, label: 'HAZİNE HİSSE BİLGİSİ' };
+      }
+      return { key: k, label: k.toUpperCase() };
+    });
   }, [data]);
 
   const sortedData = useMemo(() => {
+    if (!isReadyToRender || data.length === 0) return [];
+
     let sortableItems = [...data];
+    const collator = new Intl.Collator('tr', { numeric: true, sensitivity: 'base' });
+
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -73,23 +117,29 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
         if (aValue === null || aValue === undefined) aValue = '';
         if (bValue === null || bValue === undefined) bValue = '';
 
-        const aNum = Number(aValue);
-        const bNum = Number(bValue);
-        if (!isNaN(aNum) && !isNaN(bNum) && String(aValue).trim() !== '' && String(bValue).trim() !== '') {
-          aValue = aNum;
-          bValue = bNum;
-        } else {
-          aValue = String(aValue).toLowerCase();
-          bValue = String(bValue).toLowerCase();
+        const cmp = collator.compare(String(aValue), String(bValue));
+        if (cmp !== 0) {
+          return sortConfig.direction === 'asc' ? cmp : -cmp;
         }
-
-        if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    } else {
+      const keys = ['ilad', 'ilcead', 'mahallead', 'adano', 'parselno'];
+      sortableItems.sort((a, b) => {
+        for (const key of keys) {
+          const valA = a[key] ?? '';
+          const valB = b[key] ?? '';
+          
+          if (valA !== valB) {
+            const cmp = collator.compare(String(valA), String(valB));
+            if (cmp !== 0) return cmp;
+          }
+        }
         return 0;
       });
     }
     return sortableItems;
-  }, [data, sortConfig]);
+  }, [data, sortConfig, isReadyToRender]);
 
   const currentData = useMemo(() => {
     const startIdx = (currentPage - 1) * pageSize;

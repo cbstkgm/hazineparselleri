@@ -5,13 +5,16 @@ import AnimatedLogo from './AnimatedLogo';
 import './Header.css';
 
 interface HeaderProps {
-  activeTab: ViewTab;
-  setActiveTab: (tab: ViewTab) => void;
+  activeTab?: ViewTab;
+  setActiveTab?: (tab: ViewTab) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onOpenSqlModal?: () => void;
   mobileViewMode?: 'card' | 'table';
   setMobileViewMode?: (mode: 'card' | 'table') => void;
+  selectedCity?: string;
+  setSelectedCity?: (city: string) => void;
+  availableCities?: Set<string>;
   tokiCity?: string;
   setTokiCity?: (city: string) => void;
   tokiAvailableCities?: Set<string>;
@@ -21,7 +24,7 @@ const TURKEY_CITIES = [
   "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Aksaray", "Amasya", "Ankara", "Antalya", "Ardahan", "Artvin", "Aydın", "Balıkesir", "Bartın", "Batman", "Bayburt", "Bilecik", "Bingöl", "Bitlis", "Bolu", "Burdur", "Bursa", "Çanakkale", "Çankırı", "Çorum", "Denizli", "Diyarbakır", "Düzce", "Edirne", "Elazığ", "Erzincan", "Erzurum", "Eskişehir", "Gaziantep", "Giresun", "Gümüşhane", "Hakkari", "Hatay", "Iğdır", "Isparta", "İstanbul", "İzmir", "Kahramanmaraş", "Karabük", "Karaman", "Kars", "Kastamonu", "Kayseri", "Kırıkkale", "Kırklareli", "Kırşehir", "Kilis", "Kocaeli", "Konya", "Kütahya", "Malatya", "Manisa", "Mardin", "Mersin", "Muğla", "Muş", "Nevşehir", "Niğde", "Ordu", "Osmaniye", "Rize", "Sakarya", "Samsun", "Siirt", "Sinop", "Sivas", "Şanlıurfa", "Şırnak", "Tekirdağ", "Tokat", "Trabzon", "Tunceli", "Uşak", "Van", "Yalova", "Yozgat", "Zonguldak"
 ].sort((a, b) => a.localeCompare(b, 'tr'));
 
-const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, onOpenSqlModal, mobileViewMode, setMobileViewMode, tokiCity, setTokiCity, tokiAvailableCities }) => {
+const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, setSearchQuery, onOpenSqlModal, mobileViewMode, setMobileViewMode, selectedCity, setSelectedCity, availableCities, tokiCity, setTokiCity, tokiAvailableCities }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +65,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, s
           Veri Yükleme
         </button>
         */}
+        {/* 
         <button
           className="nav-btn"
           onClick={onOpenSqlModal}
@@ -69,6 +73,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, s
           <Code size={18} />
           SQL Sorguları
         </button>
+        */}
       </nav>
 
       <div className="header-actions">
@@ -83,6 +88,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, s
           {isMobileMenuOpen && (
             <div className="mobile-dropdown-menu">
 
+              {/* 
               <button
                 className="mobile-dropdown-item"
                 onClick={() => { if (onOpenSqlModal) onOpenSqlModal(); setIsMobileMenuOpen(false); }}
@@ -91,6 +97,7 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, s
                 SQL Sorguları
               </button>
               <div className="mobile-dropdown-divider"></div>
+              */}
               <button
                 className="mobile-dropdown-item text-green"
                 onClick={() => { window.dispatchEvent(new Event('export-excel')); setIsMobileMenuOpen(false); }}
@@ -110,23 +117,29 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, searchQuery, s
         </div>
 
         {activeTab !== 'upload' && activeTab !== 'toki' && (
-          <div className="search-container">
-            <Search size={18} className="search-icon" />
-            <input
-              type="text"
-              placeholder="Tüm tablolarda ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="global-search-input"
-            />
-            {searchQuery && (
-              <button
-                className="clear-search-btn"
-                onClick={() => setSearchQuery('')}
-                title="Aramayı temizle"
-              >
-                <X size={14} />
-              </button>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            {setSelectedCity && (
+              <div className="search-container" style={{ background: 'rgba(255, 255, 255, 0.9)', padding: '2px 12px', minWidth: '200px' }}>
+                <select
+                  value={selectedCity || ''}
+                  onChange={e => setSelectedCity(e.target.value)}
+                  style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#334155', fontSize: '14px', cursor: 'pointer', padding: '6px 0' }}
+                >
+                  <option value="">İl Seçiniz...</option>
+                  {TURKEY_CITIES.map(city => {
+                    const isAvailable = availableCities?.has(city.toLocaleLowerCase('tr-TR'));
+                    return (
+                      <option
+                        key={city}
+                        value={city}
+                        style={{ color: isAvailable ? '#16a34a' : 'inherit', fontWeight: isAvailable ? '600' : 'normal' }}
+                      >
+                        {city} {isAvailable ? '✓' : ''}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             )}
           </div>
         )}

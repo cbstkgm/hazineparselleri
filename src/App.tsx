@@ -68,9 +68,10 @@ function App() {
           setLoadingMessage(`${file} okunuyor... (${i + 1}/${csvFiles.length})`);
           
           try {
+            const fileUrl = new URL(import.meta.env.BASE_URL + file, window.location.origin).href;
             let delimiter = ',';
             try {
-              const resHeader = await fetch(import.meta.env.BASE_URL + file, { headers: { 'Range': 'bytes=0-1000' } });
+              const resHeader = await fetch(fileUrl, { headers: { 'Range': 'bytes=0-1000' } });
               const partial = await resHeader.text();
               const semi = (partial.match(/;/g) || []).length;
               const comma = (partial.match(/,/g) || []).length;
@@ -82,7 +83,7 @@ function App() {
             await new Promise<void>((resolve, reject) => {
               import('papaparse').then((PapaModule) => {
                 const Papa = PapaModule.default || PapaModule;
-                Papa.parse(import.meta.env.BASE_URL + file, {
+                Papa.parse(fileUrl, {
                   download: true,
                   worker: true,
                   header: true,

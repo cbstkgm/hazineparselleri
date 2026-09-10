@@ -10,3 +10,5 @@ export interface ParcelRecord {
 }
 
 export type MapBaseLayer = 'osm' | 'google_satellite' | 'google_hybrid' | 'yandex';
+
+export type ViewTab = 'data' | 'upload' | 'toki' | string;

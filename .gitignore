@@ -25,3 +25,4 @@ dist-ssr
 
 # Public data files (too large for git)
 public/*.csv
+public/*.rar

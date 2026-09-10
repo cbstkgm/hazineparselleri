@@ -217,15 +217,54 @@ const RightPanelMap: React.FC<RightPanelMapProps> = ({ isOpen, features, focusFe
                   <div className="tooltip-title" style={{ fontWeight: 600, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#6b7280', marginBottom: '2px' }}>{f.label}</div>
                   <div className="tooltip-desc" style={{ fontWeight: 700, fontSize: '14px', color: '#111827', borderBottom: '1px solid #e5e7eb', paddingBottom: '4px', marginBottom: '4px' }}>{f.adaParsel}</div>
                   <div style={{ maxHeight: '250px', overflowY: 'auto', textAlign: 'left', paddingRight: '4px' }}>
-                    {Object.entries(f.popupData).filter(([k,v]) => k !== 'geom' && k !== 'id' && v != null && String(v).trim() !== '').map(([k,v]) => {
-                      let displayVal = String(v);
-                      return (
-                        <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '6px 0', borderBottom: '1px solid #f3f4f6' }}>
-                          <span style={{ color: '#64748b', fontWeight: 600, marginRight: '16px', textTransform: 'capitalize' }}>{k}</span>
-                          <span style={{ color: '#0f172a', fontWeight: 500, textAlign: 'right', wordBreak: 'break-word', maxWidth: '160px' }}>{displayVal}</span>
-                        </div>
-                      );
-                    })}
+                    {(() => {
+                      const visibleKeys = [
+                        'ilad',
+                        'ilcead',
+                        'mahallead',
+                        'tapuzeminref',
+                        'adano',
+                        'parselno',
+                        'tapualan',
+                        'tapucinsaciklama',
+                        'hazineparseldurum',
+                        'hazineparseldurumaciklama'
+                      ];
+                      
+                      const normalizeKey = (key: string) => {
+                        return key.trim()
+                          .replace(/İ/g, 'i').replace(/I/g, 'ı')
+                          .toLowerCase()
+                          .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u')
+                          .replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c')
+                          .replace(/[\s_]/g, '');
+                      };
+
+                      const renderedKeys = new Set();
+
+                      return visibleKeys.map(vk => {
+                        const matchingKey = Object.keys(f.popupData).find(k => normalizeKey(k) === vk);
+                        if (!matchingKey) return null;
+                        
+                        if (renderedKeys.has(matchingKey)) return null;
+                        renderedKeys.add(matchingKey);
+
+                        const v = f.popupData[matchingKey];
+                        if (v == null || String(v).trim() === '') return null;
+                        
+                        let label = matchingKey.toUpperCase();
+                        if (vk === 'hazineparseldurum' || vk === 'hazineparseldurumaciklama') {
+                          label = 'HAZİNE HİSSE BİLGİSİ';
+                        }
+                        
+                        return (
+                          <div key={matchingKey} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', padding: '6px 0', borderBottom: '1px solid #f3f4f6' }}>
+                            <span style={{ color: '#64748b', fontWeight: 600, marginRight: '16px', textTransform: 'uppercase' }}>{label}</span>
+                            <span style={{ color: '#0f172a', fontWeight: 500, textAlign: 'right', wordBreak: 'break-word', maxWidth: '160px' }}>{String(v)}</span>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 </>
               ) : (
@@ -259,14 +298,14 @@ const RightPanelMap: React.FC<RightPanelMapProps> = ({ isOpen, features, focusFe
 
   return (
     <div ref={panelRef} className={`right-panel-map ${isOpen ? 'open' : ''}`}>
-      <div className="panel-header" style={{ alignItems: 'flex-start' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div className="panel-header">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', justifyContent: 'center' }}>
           <h3 style={{ margin: 0, lineHeight: 1 }}>Harita Görünümü</h3>
-          {titleInfo && <span style={{ fontSize: '13px', color: '#ffffff', opacity: 0.9, fontWeight: 500, lineHeight: 1.2 }}>{titleInfo}</span>}
+          {titleInfo && <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 500, lineHeight: 1.2 }}>{titleInfo}</span>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '-2px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {onToggleCityParcels && (
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#fff', fontSize: '12px', fontWeight: 500, cursor: 'pointer', background: 'rgba(0,0,0,0.2)', padding: '4px 8px', borderRadius: '6px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer', background: 'rgba(255,255,255,0.5)', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)' }}>
               <input 
                 type="checkbox" 
                 checked={showCityParcels || false} 
@@ -309,15 +348,23 @@ const RightPanelMap: React.FC<RightPanelMapProps> = ({ isOpen, features, focusFe
                 ))}
 
                 <LayersControl.BaseLayer checked={activeBaseLayer === 'TKGM WMS Altlık'} name="TKGM WMS Altlık">
-                  <WMSTileLayer 
-                    url="https://cbsservis.tkgm.gov.tr/tkgm.ows/wms"
-                    layers="TKGM:parseller"
-                    format="image/png"
-                    transparent={true}
-                    version="1.1.1"
-                    attribution="&copy; TKGM"
-                    maxZoom={22}
-                  />
+                  <LayerGroup>
+                    <TileLayer 
+                      url="http://mt0.google.com/vt/lyrs=s&hl=tr&x={x}&y={y}&z={z}" 
+                      attribution="&copy; Google" 
+                      maxNativeZoom={18} 
+                      maxZoom={22} 
+                    />
+                    <WMSTileLayer 
+                      url="https://cbsservis.tkgm.gov.tr/tkgm.ows/wms"
+                      layers="TKGM:parseller"
+                      format="image/png"
+                      transparent={true}
+                      version="1.1.1"
+                      attribution="&copy; TKGM"
+                      maxZoom={22}
+                    />
+                  </LayerGroup>
                 </LayersControl.BaseLayer>
 
                 {parsedFeatures.length > 0 && (
