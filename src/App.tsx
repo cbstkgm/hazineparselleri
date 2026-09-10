@@ -7,7 +7,6 @@ import SqlModal from './components/SqlModal';
 import * as turf from '@turf/turf';
 import { parse } from 'wellknown';
 import type { ParcelRecord } from './types';
-import { csvFiles } from 'virtual:csv-files';
 import './App.css';
 
 const getWktArea = (wkt: string | undefined): string | undefined => {
