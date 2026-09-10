@@ -156,7 +156,18 @@ function App() {
 
     if (filterHazineTam || filterHazineHisseli) {
       result = result.filter(row => {
-        const durum = (row.hazineparseldurumaciklama || row.hazineparseldurum || '').toString().toLocaleLowerCase('tr-TR');
+        let durumStr = '';
+        // Find the keys case-insensitively
+        for (const k in row) {
+          const normK = k.toLowerCase().replace(/[\s_]/g, '');
+          if (normK === 'hazineparseldurumaciklama' || normK === 'hazineparseldurum') {
+             if (row[k]) {
+               durumStr += String(row[k]) + ' ';
+             }
+          }
+        }
+        
+        const durum = durumStr.toLocaleLowerCase('tr-TR');
         const isTam = durum.includes('tam');
         const isHisseli = durum.includes('hisse');
         
