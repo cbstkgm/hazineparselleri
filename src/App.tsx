@@ -72,7 +72,7 @@ function App() {
         
         // Use R2 base URL from .env or default to local public folder
         const baseUrl = import.meta.env.VITE_DATA_BASE_URL || import.meta.env.BASE_URL;
-        const cityClean = selectedCity.replace(/\s+/g, '_');
+        const cityClean = selectedCity.toLocaleUpperCase('tr-TR').replace(/\s+/g, '_');
         const filename = `hazine_${cityClean}.csv`;
         const fileUrl = new URL(filename, baseUrl.startsWith('http') ? baseUrl : window.location.origin + baseUrl).href;
         
