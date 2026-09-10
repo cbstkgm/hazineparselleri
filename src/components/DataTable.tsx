@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { Download, Database, List, LayoutGrid, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { Download, Database, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import './DataTable.css';
 
@@ -57,7 +57,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
 
   const dynamicColumns = useMemo(() => {
     if (data.length === 0) return [];
-    
+
     // Yalnızca gösterilmesi istenen kolonlar ve tam sıralaması:
     const visibleKeys = [
       'ilad',
@@ -71,7 +71,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
       'hazineparseldurum',
       'hazineparseldurumaciklama'
     ];
-    
+
     const normalizeKey = (key: string) => {
       return key.trim()
         .replace(/İ/g, 'i').replace(/I/g, 'ı')
@@ -129,7 +129,7 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
         for (const key of keys) {
           const valA = a[key] ?? '';
           const valB = b[key] ?? '';
-          
+
           if (valA !== valB) {
             const cmp = collator.compare(String(valA), String(valB));
             if (cmp !== 0) return cmp;
@@ -348,12 +348,12 @@ const DataTable: React.FC<DataTableProps> = ({ data, checkedRowIds, onRowCheck, 
       <div className="table-footer" style={{ position: 'relative' }}>
         <div className="pagination-info" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span>
-            {isMobile 
+            {isMobile
               ? `${(currentPage - 1) * pageSize + 1}-${Math.min(currentPage * pageSize, data.length)} / ${data.length}`
               : `Gösterilen: ${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, data.length)} / Toplam: ${data.length}`}
           </span>
         </div>
-        
+
         <div className="pagination-controls">
           <button className="page-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(1)}><ChevronsLeft size={16} /></button>
           <button className="page-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}><ChevronLeft size={16} /></button>

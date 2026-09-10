@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { MapContainer, TileLayer, WMSTileLayer, GeoJSON, useMap, useMapEvents, Popup, Polyline, Marker, LayersControl, LayerGroup } from 'react-leaflet';
+import { MapContainer, TileLayer, WMSTileLayer, GeoJSON, useMap, useMapEvents, Popup, Marker, LayersControl, LayerGroup } from 'react-leaflet';
 import { X, Layers } from 'lucide-react';
 import { parse } from 'wellknown';
 import 'leaflet/dist/leaflet.css';
@@ -192,8 +192,6 @@ const RightPanelMap: React.FC<RightPanelMapProps> = ({ isOpen, features, focusFe
   ];
 
   const renderFeature = (f: any, idx: number) => {
-    const scale = currentZoom >= 18 ? 1 : Math.pow(2, currentZoom - 18);
-    const showCard = false;
 
     let offsetLatLng: [number, number] | null = f.centroid || null;
 

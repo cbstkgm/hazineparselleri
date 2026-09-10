@@ -29,6 +29,7 @@ function publicCsvListPlugin() {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/hazineparselleri/',
   plugins: [react(), publicCsvListPlugin()],
   server: {
     proxy: {
