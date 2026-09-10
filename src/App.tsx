@@ -4,6 +4,7 @@ import DataUploader from './components/DataUploader';
 import DataTable from './components/DataTable';
 import RightPanelMap, { type MapFeature } from './components/RightPanelMap';
 import SqlModal from './components/SqlModal';
+import Login from './components/Login';
 import * as turf from '@turf/turf';
 import { parse } from 'wellknown';
 import type { ParcelRecord } from './types';
@@ -44,6 +45,7 @@ function App() {
   const [debouncedSearch, setDebouncedSearch] = useState<string>('');
   const [mobileViewMode, setMobileViewMode] = useState<'card' | 'table'>('card');
   const [isSqlModalOpen, setIsSqlModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => sessionStorage.getItem('hazine_auth') === 'true');
   
   const [filterHazineTam, setFilterHazineTam] = useState(false);
   const [filterHazineHisseli, setFilterHazineHisseli] = useState(false);
@@ -257,6 +259,10 @@ function App() {
 
     return `${il} / ${ilce} - ${mah} | Ada/Parsel: ${ada}/${parsel}`;
   }, [checkedRowIds, parcelData]);
+
+  if (!isAuthenticated) {
+    return <Login onLoginSuccess={() => setIsAuthenticated(true)} />;
+  }
 
   if (!isDataLoaded) {
     return (
