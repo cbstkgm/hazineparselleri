@@ -82,6 +82,18 @@ function App() {
         const fileUrl = new URL(filename, baseUrl.startsWith('http') ? baseUrl : window.location.origin + baseUrl).href;
         
         let delimiter = ';';
+
+        // Pre-flight check with fetch to catch CORS and 404 errors cleanly
+        try {
+          const checkRes = await fetch(fileUrl, { method: 'HEAD' });
+          if (!checkRes.ok && checkRes.status !== 405) { // some servers reject HEAD
+            throw new Error(`File not accessible (HTTP ${checkRes.status})`);
+          }
+        } catch (e) {
+          // If fetch fails completely, it's likely a CORS or network error
+          console.warn("Pre-flight check failed:", e);
+          throw new Error("Network or CORS error");
+        }
         
         await new Promise<void>((resolve, reject) => {
           import('papaparse').then((PapaModule) => {
@@ -93,29 +105,33 @@ function App() {
               delimiter: delimiter,
               skipEmptyLines: 'greedy',
               complete: (results) => {
-                const parsed = results.data as any[];
-                const withIds = parsed.map(row => {
-                  const newRow: any = {};
-                  for (const key in row) {
-                    const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
-                    const cleanH = h.replace(/[\s_]/g, '');
-                    let finalKey = key.trim();
-                    if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
-                    else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
-                    else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
-                    else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
-                    else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
-                    else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
-                    newRow[finalKey] = row[key];
-                  }
-                  newRow.id = `parsel-${idCounter++}`;
-                  if (newRow.geom && !newRow.tapualan) {
-                    newRow.tapualan = getWktArea(newRow.geom) || '';
-                  }
-                  return newRow as ParcelRecord;
-                });
-                allRecords = withIds;
-                resolve();
+                try {
+                  const parsed = results.data as any[];
+                  const withIds = parsed.map(row => {
+                    const newRow: any = {};
+                    for (const key in row) {
+                      const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
+                      const cleanH = h.replace(/[\s_]/g, '');
+                      let finalKey = key.trim();
+                      if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
+                      else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
+                      else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
+                      else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
+                      else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
+                      else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
+                      newRow[finalKey] = row[key];
+                    }
+                    newRow.id = `parsel-${idCounter++}`;
+                    if (newRow.geom && !newRow.tapualan) {
+                      newRow.tapualan = getWktArea(newRow.geom) || '';
+                    }
+                    return newRow as ParcelRecord;
+                  });
+                  allRecords = withIds;
+                  resolve();
+                } catch (e) {
+                  reject(e);
+                }
               },
               error: (err: any) => {
                 console.error("PapaParse Hatası:", err);
