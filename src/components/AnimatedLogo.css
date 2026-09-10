@@ -1,0 +1,51 @@
+.animated-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.animated-logo-right {
+  margin-right: 12px;
+}
+
+.animated-logo-left {
+  margin-left: 12px;
+  transform: scaleX(-1);
+}
+
+.animated-logo svg {
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.chevron {
+  animation: pulse-chevron 1.8s infinite cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.chevron-1 {
+  animation-delay: 0s;
+}
+
+.chevron-2 {
+  animation-delay: 0.2s;
+}
+
+.chevron-3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse-chevron {
+  0% {
+    opacity: 0.3;
+    transform: translateX(0) scale(0.95);
+  }
+  30% {
+    opacity: 1;
+    transform: translateX(4px) scale(1.05);
+  }
+  60%, 100% {
+    opacity: 0.3;
+    transform: translateX(0) scale(0.95);
+  }
+}

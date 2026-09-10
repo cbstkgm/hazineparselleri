@@ -1,0 +1,141 @@
+.sql-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.sql-modal-content {
+  width: 80%;
+  height: 80%;
+  background-color: white;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: scaleUp 0.2s ease-out;
+}
+
+@keyframes scaleUp {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.sql-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: #f8fafc;
+}
+
+.sql-modal-header h2 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+  font-weight: 600;
+}
+
+.sql-modal-header .close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.sql-modal-header .close-btn:hover {
+  background: #e2e8f0;
+  color: #ef4444;
+}
+
+.sql-modal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #1e1e1e; /* VSCode dark theme background */
+}
+
+.sql-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow: hidden;
+  width: 50%;
+}
+
+.sql-panel h3 {
+  color: #e2e8f0;
+  font-size: 1rem;
+  margin: 0 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+  font-weight: 500;
+}
+
+.code-container {
+  flex: 1;
+  overflow: auto;
+  background: #141414;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #333;
+}
+
+.code-container pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.code-container code {
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #9cdcfe; /* Light blue syntax look */
+}
+
+.divider {
+  width: 2px;
+  background: #333;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .sql-modal-content {
+    width: 95%;
+    height: 95%;
+  }
+  
+  .sql-modal-body {
+    flex-direction: column;
+  }
+  
+  .sql-panel {
+    width: 100%;
+    height: 50%;
+  }
+  
+  .divider {
+    width: 100%;
+    height: 2px;
+  }
+}
