@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import Header from './components/Header';
+import Header, { TURKEY_CITIES } from './components/Header';
 import DataUploader from './components/DataUploader';
 import DataTable from './components/DataTable';
 import RightPanelMap, { type MapFeature } from './components/RightPanelMap';
@@ -37,7 +37,7 @@ const getWktCentroid = (wkt: string | undefined): [number, number] | undefined =
 };
 
 function App() {
-  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('Başlatılıyor...');
   const [parcelData, setParcelData] = useState<ParcelRecord[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>('');
@@ -58,91 +58,86 @@ function App() {
   }, [searchQuery]);
 
   useEffect(() => {
-    const loadAllCsvs = async () => {
+    const loadCityData = async () => {
+      if (!selectedCity) {
+        setParcelData([]);
+        return;
+      }
+
+      setIsDataLoaded(false);
+      setLoadingMessage(`${selectedCity} verileri indiriliyor...`);
+      
       try {
         let allRecords: ParcelRecord[] = [];
         let idCounter = 0;
         
-        for (let i = 0; i < csvFiles.length; i++) {
-          const file = csvFiles[i];
-          setLoadingMessage(`${file} okunuyor... (${i + 1}/${csvFiles.length})`);
-          
-          try {
-            const fileUrl = new URL(import.meta.env.BASE_URL + file, window.location.origin).href;
-            let delimiter = ',';
-            try {
-              const resHeader = await fetch(fileUrl, { headers: { 'Range': 'bytes=0-1000' } });
-              const partial = await resHeader.text();
-              const semi = (partial.match(/;/g) || []).length;
-              const comma = (partial.match(/,/g) || []).length;
-              if (semi > comma) delimiter = ';';
-            } catch (e) {
-              // Ignore range request failure
-            }
-
-            await new Promise<void>((resolve, reject) => {
-              import('papaparse').then((PapaModule) => {
-                const Papa = PapaModule.default || PapaModule;
-                Papa.parse(fileUrl, {
-                  download: true,
-                  worker: true,
-                  header: true,
-                  delimiter: delimiter,
-                  skipEmptyLines: 'greedy',
-                  complete: (results) => {
-                    const parsed = results.data as any[];
-                    const withIds = parsed.map(row => {
-                      const newRow: any = {};
-                      for (const key in row) {
-                        const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
-                        const cleanH = h.replace(/[\s_]/g, '');
-                        let finalKey = key.trim();
-                        if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
-                        else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
-                        else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
-                        else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
-                        else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
-                        else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
-                        newRow[finalKey] = row[key];
-                      }
-                      newRow.id = `parsel-${idCounter++}`;
-                      return newRow as ParcelRecord;
-                    });
-                    allRecords = [...allRecords, ...withIds];
-                    resolve();
-                  },
-                  error: (err: any) => {
-                    console.error("PapaParse Hatası:", err);
-                    reject(err);
+        // Use R2 base URL from .env or default to local public folder
+        const baseUrl = import.meta.env.VITE_DATA_BASE_URL || import.meta.env.BASE_URL;
+        const cityClean = selectedCity.replace(/\s+/g, '_');
+        const filename = `hazine_${cityClean}.csv`;
+        const fileUrl = new URL(filename, baseUrl.startsWith('http') ? baseUrl : window.location.origin + baseUrl).href;
+        
+        let delimiter = ';';
+        
+        await new Promise<void>((resolve, reject) => {
+          import('papaparse').then((PapaModule) => {
+            const Papa = PapaModule.default || PapaModule;
+            Papa.parse(fileUrl, {
+              download: true,
+              worker: true,
+              header: true,
+              delimiter: delimiter,
+              skipEmptyLines: 'greedy',
+              complete: (results) => {
+                const parsed = results.data as any[];
+                const withIds = parsed.map(row => {
+                  const newRow: any = {};
+                  for (const key in row) {
+                    const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
+                    const cleanH = h.replace(/[\s_]/g, '');
+                    let finalKey = key.trim();
+                    if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
+                    else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
+                    else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
+                    else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
+                    else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
+                    else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
+                    newRow[finalKey] = row[key];
                   }
+                  newRow.id = `parsel-${idCounter++}`;
+                  return newRow as ParcelRecord;
                 });
-              });
+                allRecords = withIds;
+                resolve();
+              },
+              error: (err: any) => {
+                console.error("PapaParse Hatası:", err);
+                reject(err);
+              }
             });
-          } catch (e) {
-            console.error(`Error reading ${file}`, e);
-          }
-        }
+          });
+        });
         
         setParcelData(allRecords);
         setIsDataLoaded(true);
       } catch (err) {
         console.error("CSV yükleme hatası", err);
-        setLoadingMessage('Yükleme sırasında hata oluştu.');
+        setLoadingMessage('Yükleme sırasında hata oluştu. Lütfen dosya adresini kontrol edin.');
+        // Show the error for a few seconds before returning to empty state
+        setTimeout(() => {
+          setIsDataLoaded(true);
+          setSelectedCity('');
+        }, 3000);
       }
     };
     
-    loadAllCsvs();
-  }, []);
+    loadCityData();
+  }, [selectedCity]);
 
   const availableCities = useMemo(() => {
-    const cities = new Set<string>();
-    parcelData.forEach(row => {
-      if (row.ilad) {
-        cities.add(row.ilad.toString().toLocaleLowerCase('tr-TR').trim());
-      }
-    });
-    return cities;
-  }, [parcelData]);
+    // All cities are considered available since they are stored remotely
+    return new Set(TURKEY_CITIES.map(c => c.toLocaleLowerCase('tr-TR')));
+  }, []);
 
   const normalizeSearch = (s: string) => s.toLocaleLowerCase('tr-TR').replace(/\s*([/-])\s*/g, '$1');
 
