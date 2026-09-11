@@ -39,6 +39,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/tkgm-wms/, '/tkgm.ows/wms'),
         auth: 'genelsunum:CbsSube+13579',
         secure: false,
+      },
+      '/r2-data': {
+        target: 'https://pub-5970509700fe47c7bf676ea981b6d4fd.r2.dev',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/r2-data/, '')
       }
     }
   }

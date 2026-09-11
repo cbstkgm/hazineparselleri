@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://www.cloudflare.com/favicon.ico" />
+    <title>Unauthorized</title>
+    <style>
+      body {
+        font-family: system-ui;
+        font-weight: 300;
+        font-size: 1.25rem;
+        color: #36393a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      main {
+        max-width: 1200px;
+        margin-top: 120px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+      }
+      #text {
+        max-width: 60%;
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+      main > section > div {
+        margin-bottom: 3.25rem;
+      }
+      svg {
+        margin-left: 2rem;
+      }
+      h1 {
+        font-size: 3.75rem;
+        font-weight: 400;
+        margin-bottom: 0.5rem;
+      }
+      h3 {
+        font-size: 2rem;
+        font-weight: 400;
+        color: #92979b;
+        margin: 0;
+      }
+      a {
+        color: #0055dc;
+      }
+      p {
+        margin: 0;
+      }
+      #error-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+      }
+      #footer-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <section id="text">
+        <div>
+          <h1>Error 401</h1>
+          <h3>This bucket cannot be viewed</h3>
+        </div>
+
+        <div>
+          <p id="error-title">You are not authorized to view this bucket</p>
+          <p>
+            This bucket does not exist or is not publicly accessible at this
+            URL. Check the URL of the bucket that you’re looking for or contact
+            the owner to enable Public access.
+          </p>
+        </div>
+
+        <div>
+          <p id="footer-title">Is this your bucket?</p>
+          <p>
+            Learn how to enable
+            <a
+              href="https://developers.cloudflare.com/r2/data-access/public-buckets/"
+              >Public Access</a
+            >
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <svg
+          width="358"
+          height="408"
+          viewBox="0 0 358 408"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
