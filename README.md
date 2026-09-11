@@ -1,10 +1,10 @@
-# tha-makam Mükerrer Parsel ve Toki Satış Analizi
+# Hazine Parselleri Sistemi
 
-Bu proje, tescil harici alanlar (THA) ile mükerrer parsellerin coğrafi analizlerini yapmak, kesişim alanlarını (intersection) hesaplamak ve Toki Satış kayıtlarını harita üzerinde interaktif olarak görüntülemek amacıyla geliştirilmiştir.
+Bu proje, Hazine'ye ait parsellerin (ve tescil harici alanların) coğrafi analizlerini yapmak, özelliklerini detaylı bir şekilde listelemek ve harita üzerinde interaktif olarak görüntülemek amacıyla geliştirilmiştir.
 
 <div align="center">
   <br/>
-    <a href="https://cbstkgm.github.io/tha-makam/">
+    <a href="https://cbstkgm.github.io/hazineparselleri/">
     <img src="https://img.shields.io/badge/🚀_Canlı_Demo-Görüntüle-2563eb?style=for-the-badge&logo=react" alt="Demo Butonu" />
   </a>
   <br/><br/>
@@ -12,19 +12,18 @@ Bu proje, tescil harici alanlar (THA) ile mükerrer parsellerin coğrafi analizl
 
 ## Özellikler
 
-- **Katman (Layer) Kontrolü:** Tescilli THA, Mükerrer Parsel ve kesişim alanlarının harita üzerinden kolaylıkla açılıp kapatılabilmesi.
-- **Kesişim Hesaplamaları:** Geometrik wkt verilerinden anlık kesişim (intersection) alanı hesaplanması ve harita üzerinde taralı (hatch) desenle belirginleştirilmesi.
-- **Toki Satış Entegrasyonu:** Toki parsellerinin coğrafi sınırlarının haritada gösterimi, sağ üst köşeye hizalanmış interaktif detay kartlarıyla bedel (Satış/Muhammen) verilerinin para birimi (₺) formatında vurgulu gösterimi.
-- **İnteraktif Veri Tablosu:** Yüklenen verilerin listelenmesi, hızlı arama, gelişmiş CSV ayrıştırması, ve tıklanan parsele anında odaklanma (zoom) imkanı.
+- **Katman (Layer) Kontrolü:** İlgili parsellerin harita üzerinden kolaylıkla açılıp kapatılabilmesi.
+- **Kesişim Hesaplamaları:** Geometrik WKT verilerinden anlık alan ve kesişim özelliklerinin hesaplanması ve harita üzerinde taralı (hatch) desenle belirginleştirilmesi.
+- **İnteraktif Veri Tablosu:** Yüklenen verilerin listelenmesi, hızlı arama, gelişmiş CSV ayrıştırması ve tıklanan parsele anında odaklanma (zoom) imkanı.
 - **Akıllı Sıralama:** Listeler yüklendiğinde varsayılan olarak Türkçe karakter duyarlılığı ile `İl -> İlçe -> Mahalle -> Ada No -> Parsel No` sırasına göre listelenme yeteneği.
-- **Özelleştirilebilir Harita Görünümü:** Esnek (genişletilebilir) harita paneli ve farklı altlık harita seçenekleri (Google, Yandex, OSM).
+- **Özelleştirilebilir Harita Görünümü:** Esnek (genişletilebilir) harita paneli ve farklı altlık harita seçenekleri (Google, Yandex, OSM, Tkgm WMS).
+- **Hızlı Veri Erişimi:** Uzak sunucudan asenkron CSV indirme ve coğrafi parse etme özelliği.
 
 ## Geliştirme ve Kurulum
 
 Projeyi yerel ortamınızda çalıştırmak için aşağıdaki adımları izleyebilirsiniz:
 
 ```bash
-# Repoyu klonlayın
 # Proje dizinine gidin ve bağımlılıkları yükleyin:
 npm install
 
@@ -32,17 +31,19 @@ npm install
 npm run dev
 ```
 
-> **Not:** Demo linki projeye aittir. Sistem `public` klasörü altındaki verileri asenkron olarak okuyarak haritaya işler.
+> **Not:** Canlı Demo GitHub Pages üzerinden çalışmaktadır. Veriler uzak sunucudan asenkron biçimde çekilip haritaya işlenir. Yerel geliştirmede CORS sınırlarını aşmak için projenin proxy (.env) konfigürasyonu aktiftir.
 
+## Yayınlama
 
-Nasıl Kullanacaksınız?
+Projeyi derlemek ve GitHub Pages üzerinde yayına almak için hazır scriptler bulunur:
 
-tha-makam reposu için build alıp yayınlayacağınız zaman terminale "npm run build:makam" yazmalısınız.
-tha-kontrol reposu için build alıp yayınlayacağınız zaman terminale "npm run build:kontrol" yazmalısınız.
+```bash
+# Sadece derlemek için
+npm run build
 
-npm run build:makam
-npm run build:kontrol
+# GitHub Pages (dist/ dizini) deploy etmek için
+npm run deploy
 
-yada bu aşağıdaki kodu terminalde çalıştırman yeterli
-
+# Yayına alma sürecini tam otomatize etmek için (sh)
 npm run publish:all
+```
