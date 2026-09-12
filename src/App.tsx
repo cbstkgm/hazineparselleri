@@ -79,7 +79,10 @@ function App() {
         const baseUrl = import.meta.env.VITE_DATA_BASE_URL || import.meta.env.BASE_URL;
         const cityClean = selectedCity.toLocaleUpperCase('tr-TR').replace(/\s+/g, '_');
         const filename = `hazine_${cityClean}.csv`;
-        const fileUrl = new URL(filename, baseUrl.startsWith('http') ? baseUrl : window.location.origin + baseUrl).href;
+        
+        const fileUrl = baseUrl.startsWith('http') 
+          ? (baseUrl + filename) 
+          : new URL(filename, window.location.origin + baseUrl).href;
         
         let delimiter = ';';
 
