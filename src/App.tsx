@@ -85,18 +85,8 @@ function App() {
           : new URL(filename, window.location.origin + baseUrl).href;
         
         let delimiter = ';';
+        // Pre-flight kontrolü kaldırıldı (CORS proxyleri HEAD isteğinde 403 dönebiliyor)
 
-        // Pre-flight check with fetch to catch CORS and 404 errors cleanly
-        try {
-          const checkRes = await fetch(fileUrl, { method: 'HEAD' });
-          if (!checkRes.ok && checkRes.status !== 405) { // some servers reject HEAD
-            throw new Error(`File not accessible (HTTP ${checkRes.status})`);
-          }
-        } catch (e) {
-          // If fetch fails completely, it's likely a CORS or network error
-          console.warn("Pre-flight check failed:", e);
-          throw new Error("Network or CORS error");
-        }
         
         await new Promise<void>((resolve, reject) => {
           import('papaparse').then((PapaModule) => {
