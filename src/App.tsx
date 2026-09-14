@@ -77,22 +77,8 @@ function App() {
         
         // Use R2 base URL from .env or default to local public folder
         const baseUrl = import.meta.env.VITE_DATA_BASE_URL || import.meta.env.BASE_URL;
-        const replaceTurkishChars = (str: string) => {
-          return str.replace(/Ğ/g, 'G')
-                    .replace(/Ü/g, 'U')
-                    .replace(/Ş/g, 'S')
-                    .replace(/İ/g, 'I')
-                    .replace(/Ö/g, 'O')
-                    .replace(/Ç/g, 'C')
-                    .replace(/ğ/g, 'g')
-                    .replace(/ü/g, 'u')
-                    .replace(/ş/g, 's')
-                    .replace(/ı/g, 'i')
-                    .replace(/ö/g, 'o')
-                    .replace(/ç/g, 'c');
-        };
-        const cityClean = replaceTurkishChars(selectedCity.toLocaleUpperCase('tr-TR')).replace(/\s+/g, '_');
-        const filename = `hazine_${cityClean}.csv`;
+        const cityClean = selectedCity.toLocaleUpperCase('tr-TR').replace(/\s+/g, '_');
+        const filename = `hazine_${cityClean}.csv.gz`;
         
         const fileUrl = baseUrl.startsWith('http') 
           ? (baseUrl + filename) 
@@ -101,52 +87,75 @@ function App() {
         let delimiter = ';';
         // Pre-flight kontrolü kaldırıldı (CORS proxyleri HEAD isteğinde 403 dönebiliyor)
 
-        
+        const fetchAndDecompress = async (url: string): Promise<string> => {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+          if (typeof DecompressionStream === 'undefined') {
+              throw new Error("Tarayıcınız GZIP açmayı desteklemiyor.");
+          }
+          const ds = new DecompressionStream('gzip');
+          const decompressedStream = res.body!.pipeThrough(ds);
+          const reader = decompressedStream.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let result = '';
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            result += decoder.decode(value, { stream: true });
+          }
+          result += decoder.decode();
+          return result;
+        };
+
         await new Promise<void>((resolve, reject) => {
-          import('papaparse').then((PapaModule) => {
-            const Papa = PapaModule.default || PapaModule;
-            Papa.parse(fileUrl, {
-              download: true,
-              worker: false,
-              header: true,
-              delimiter: delimiter,
-              skipEmptyLines: 'greedy',
-              complete: (results) => {
-                try {
-                  const parsed = results.data as any[];
-                  const withIds = parsed.map(row => {
-                    const newRow: any = {};
-                    for (const key in row) {
-                      const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
-                      const cleanH = h.replace(/[\s_]/g, '');
-                      let finalKey = key.trim();
-                      if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
-                      else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
-                      else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
-                      else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
-                      else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
-                      else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
-                      newRow[finalKey] = row[key];
-                    }
-                    newRow.id = `parsel-${idCounter++}`;
-                    if (newRow.geom && !newRow.tapualan) {
-                      newRow.tapualan = getWktArea(newRow.geom) || '';
-                    }
-                    return newRow as ParcelRecord;
-                  });
-                  allRecords = withIds;
-                  resolve();
-                } catch (e) {
-                  reject(e);
+          fetchAndDecompress(fileUrl).then(csvText => {
+            import('papaparse').then((PapaModule) => {
+              const Papa = PapaModule.default || PapaModule;
+              Papa.parse(csvText, {
+                header: true,
+                delimiter: delimiter,
+                skipEmptyLines: 'greedy',
+                complete: (results) => {
+                  try {
+                    const parsed = results.data as any[];
+                    const withIds = parsed.map(row => {
+                      const newRow: any = {};
+                      for (const key in row) {
+                        const h = key.trim().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase().replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ç/g, 'c');
+                        const cleanH = h.replace(/[\s_]/g, '');
+                        let finalKey = key.trim();
+                        if (cleanH === 'ilad' || cleanH === 'iladi' || cleanH === 'il') finalKey = 'ilad';
+                        else if (cleanH === 'ilcead' || cleanH === 'ilceadi' || cleanH === 'ilce') finalKey = 'ilcead';
+                        else if (cleanH === 'mahallead' || cleanH === 'mahalleadi' || cleanH === 'mahalle' || cleanH === 'mah') finalKey = 'mahallead';
+                        else if (cleanH === 'adano' || cleanH === 'ada') finalKey = 'adano';
+                        else if (cleanH === 'parselno' || cleanH === 'parsel') finalKey = 'parselno';
+                        else if (cleanH === 'wkt' || cleanH === 'geometry' || cleanH === 'geom' || cleanH === 'parselgeom') finalKey = 'geom';
+                        newRow[finalKey] = row[key];
+                      }
+                      newRow.id = `parsel-${idCounter++}`;
+                      if (newRow.geom && !newRow.tapualan) {
+                        newRow.tapualan = getWktArea(newRow.geom) || '';
+                      }
+                      return newRow as ParcelRecord;
+                    });
+                    allRecords = withIds;
+                    resolve();
+                  } catch (e) {
+                    reject(e);
+                  }
+                },
+                error: (err: any) => {
+                  console.error("PapaParse Hatası:", err);
+                  reject(err);
                 }
-              },
-              error: (err: any) => {
-                console.error("PapaParse Hatası:", err);
-                reject(err);
-              }
+              });
             });
+          }).catch(err => {
+            console.error("Veri çekme veya açma hatası:", err);
+            reject(err);
           });
         });
+
         
         setParcelData(allRecords);
         setIsDataLoaded(true);
