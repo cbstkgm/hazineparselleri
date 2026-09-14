@@ -23,7 +23,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="login-container" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}background.jpg')` }}>
+    <div className="login-container" style={{ backgroundImage: `url('${import.meta.env.BASE_URL}tkgm_isik.jpeg')` }}>
       <div className="login-overlay"></div>
       <div className="login-card">
         <div className="login-logo">
