@@ -77,7 +77,21 @@ function App() {
         
         // Use R2 base URL from .env or default to local public folder
         const baseUrl = import.meta.env.VITE_DATA_BASE_URL || import.meta.env.BASE_URL;
-        const cityClean = selectedCity.toLocaleUpperCase('tr-TR').replace(/\s+/g, '_');
+        const replaceTurkishChars = (str: string) => {
+          return str.replace(/Ğ/g, 'G')
+                    .replace(/Ü/g, 'U')
+                    .replace(/Ş/g, 'S')
+                    .replace(/İ/g, 'I')
+                    .replace(/Ö/g, 'O')
+                    .replace(/Ç/g, 'C')
+                    .replace(/ğ/g, 'g')
+                    .replace(/ü/g, 'u')
+                    .replace(/ş/g, 's')
+                    .replace(/ı/g, 'i')
+                    .replace(/ö/g, 'o')
+                    .replace(/ç/g, 'c');
+        };
+        const cityClean = replaceTurkishChars(selectedCity.toLocaleUpperCase('tr-TR')).replace(/\s+/g, '_');
         const filename = `hazine_${cityClean}.csv`;
         
         const fileUrl = baseUrl.startsWith('http') 
