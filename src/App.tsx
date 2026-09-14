@@ -90,21 +90,29 @@ function App() {
         const fetchAndDecompress = async (url: string): Promise<string> => {
           const res = await fetch(url);
           if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-          if (typeof DecompressionStream === 'undefined') {
-              throw new Error("Tarayıcınız GZIP açmayı desteklemiyor.");
+          
+          const resClone = res.clone();
+          
+          try {
+            if (typeof DecompressionStream === 'undefined') {
+                throw new Error("Tarayıcınız GZIP açmayı desteklemiyor.");
+            }
+            const ds = new DecompressionStream('gzip');
+            const decompressedStream = res.body!.pipeThrough(ds);
+            const reader = decompressedStream.getReader();
+            const decoder = new TextDecoder('utf-8');
+            let result = '';
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              result += decoder.decode(value, { stream: true });
+            }
+            result += decoder.decode();
+            return result;
+          } catch (e) {
+            console.warn("GZIP açma başarısız oldu (Tarayıcı otomatik açmış olabilir). Düz metin (CSV) olarak deneniyor...", e);
+            return await resClone.text();
           }
-          const ds = new DecompressionStream('gzip');
-          const decompressedStream = res.body!.pipeThrough(ds);
-          const reader = decompressedStream.getReader();
-          const decoder = new TextDecoder('utf-8');
-          let result = '';
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            result += decoder.decode(value, { stream: true });
-          }
-          result += decoder.decode();
-          return result;
         };
 
         await new Promise<void>((resolve, reject) => {
